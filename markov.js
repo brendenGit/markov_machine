@@ -1,9 +1,8 @@
-const _ = require('lodash');
-
+import _ from 'lodash';
 /** Textual markov chain generator */
 
 
-class MarkovMachine {
+export default class MarkovMachine {
 
   /** build markov machine; read in text.*/
 
@@ -37,19 +36,38 @@ class MarkovMachine {
 
   /** return random text from chains */
 
-  makeText(numWords=100) {
+  makeText(numWords = 100) {
     // TODO
-    let currentWord = _.sample(this.words);
-    console.log(`this is the first word ${currentWord}`);
-    let output = `${currentWord} `;
-    for(let i = 0; i < numWords; i++) {
-      let currChain = this.chains[currentWord];
-      let selectedWord = _.sample(currChain);
-      currentWord = selectedWord;
-      output = output.concat(`${currentWord} `);
+    // let currentWord = _.sample(this.words);
+    // let output = `${currentWord} `;
+    // for(let i = 0; i < numWords; i++) {
+    //   let currChain = this.chains[currentWord];
+    //   let selectedWord = _.sample(currChain);
+    //   currentWord = selectedWord;
+    //   output = output.concat(`${currentWord} `);
+    // };
+    // console.log(output);
+    const findValidWord = (currWord) => {
+      let word = _.sample(this.chains[currWord]);
+      if (typeof word !== 'undefined') {
+        return word;
+      } else {
+        return findValidWord(currWord);
+      };
+    };
+
+    let currWord = _.sample(this.words);
+    let output = `${currWord} `;
+    
+    let appendedWord;
+    let count = 0;
+    while (count < numWords) {
+      appendedWord = findValidWord(currWord);
+      output = output.concat(`${appendedWord} `);
+      currWord = appendedWord;
+      count ++;
     };
     console.log(output);
+    return output;
   };
 };
-
-module.exports = MarkovMachine;
