@@ -1,16 +1,16 @@
 /** Command-line tool to generate Markov text. */
-import fs from 'fs/promises';
-import MarkovMachine from './markov.js'
-import { stripHtml } from "string-strip-html";
-import isURL from 'is-url';
-import axios from 'axios';
-
+const fs = require('fs/promises');
+const MarkovMachine = require('./markov');
+const stripHtml = require('string-strip-html');
+const isURL = require('is-url');
+const axios = require('axios');
 
 const argv = process.argv;
 const path = argv[2];
+const numWords = argv[3];
 
 
-async function createWebMM(path, filename) {
+async function createWebMM(path) {
     try {
         let content = await axios.get(path);
         content = content.data;
@@ -23,7 +23,7 @@ async function createWebMM(path, filename) {
                 ""
             )
             .trim();
-    
+
         content = stripHtml(content).result;
         return new MarkovMachine(content);
     } catch (error) {
@@ -43,12 +43,15 @@ async function createLocalMM(path) {
     }
 }
 
-let markov;
-if (isURL(path)) {
-    markov = await createWebMM(path);
-} else {
-    markov = await createLocalMM(path);
+async function generateText(numWords) {
+    let markov;
+    if (isURL(path)) {
+        markov = await createWebMM(path);
+        markov.makeText(numWords);
+    } else {
+        markov = await createLocalMM(path);
+        markov.makeText(numWords);
+    };
 };
-isURL(path)
 
-markov.makeText();
+generateText(numWords);
